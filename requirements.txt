@@ -9,6 +9,7 @@ Flask-Login
 psycopg2
 python-dotenv
 
+
 # ----------------------
 # Production Server
 # ----------------------
