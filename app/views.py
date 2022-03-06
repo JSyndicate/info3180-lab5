@@ -27,9 +27,15 @@ def about():
     """Render the website's about page."""
     return render_template('about.html', name="Jevan Williamson")
 
+@app.route('/secure-page')
+def secure_page():
+    return render_template('secure_page.html')
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('secure_page'))
     form = LoginForm()
     #Validate-On-Submit
     if request.method == "POST":
@@ -57,11 +63,19 @@ def login():
             # passed to the login_user() method below.
 
             # get user id, load into session
-            login_user(user)
+                login_user(user, remember=remember_me)
+                flash('You have logged in successfully.')
+
+                next_page = request.args.get('next')
+                return redirect(next_page or url_for('home'))
+            else:
+                flash('Incorrect Username or Password.')
+
 
             # remember to flash a message to the user
-            return redirect(url_for("home"))  # they should be redirected to a secure-page route instead
-    return render_template("login.html", form=form)
+            # they should be redirected to a secure-page route instead
+        flash_errors(form)
+        return render_template("login.html", form=form)
 
 
 # user_loader callback. This callback is used to reload the user object from
