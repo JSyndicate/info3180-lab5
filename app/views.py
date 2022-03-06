@@ -10,7 +10,7 @@ from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
 from app.forms import LoginForm
 from app.models import UserProfile
-
+from werkzeug.security import check_password_hash
 
 ###
 # Routing for your application.
@@ -25,16 +25,29 @@ def home():
 @app.route('/about/')
 def about():
     """Render the website's about page."""
-    return render_template('about.html')
+    return render_template('about.html', name="Jevan Williamson")
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
+    #Validate-On-Submit
     if request.method == "POST":
+        if form.validate_on_submit():
+            username = form.username.data
+            password = form.password.data
+            
+            user = UserProfile.query.filter_by(username=username, password=password).first()
+            
+            if user is not None and check_password_hash(user.password,password):
+                remember_me = False
+                
+                if 'remember_me' in request.form:
+                    remember_me = True
+    
         # change this to actually validate the entire form submission
         # and not just one field
-        if form.username.data:
+        #if form.username.data:
             # Get the username and password values from the form.
 
             # using your model, query database for a user based on the username
